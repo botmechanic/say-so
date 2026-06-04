@@ -20,18 +20,15 @@ Click **Speak** (or type) and say: _"a todo list app where I can add and delete 
 
 ## Screenshots
 
-<!-- TODO: capture during a real run; save as docs/images/build-stream-mid-run.png -->
 ![Build stream mid-run — agent scaffolding the app with live tool output](docs/images/build-stream-mid-run.png)
 
 *Mid-build: the agent's work streams in real time — edits, shell commands, and narration.*
 
-<!-- TODO: capture during a real run; save as docs/images/proof-panel.png -->
 ![Proof panel — the agent's verified screenshot of the app it built](docs/images/proof-panel.png)
 
 *The win condition: a screenshot the agent took of an app it built seconds ago, not ours.*
 
-<!-- TODO: capture during a real run; save as docs/images/hero-full-ui.png -->
-![Full UI after a successful run — wordmark, build stream, and proof side by side](docs/images/hero-full-ui.png)
+![Full UI after a successful run — logo, build stream, and proof side by side](docs/images/hero-full-ui.png)
 
 *Full screen after a successful run — one page, three zones, demo-ready from across the room.*
 
