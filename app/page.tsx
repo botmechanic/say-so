@@ -15,6 +15,16 @@ type StreamLog = Extract<BuildEvent, { type: "log" }>;
 
 const ACTIVE_PHASES: BuildPhase[] = ["starting", "building", "verifying"];
 
+const PHASE_PROGRESS: Record<BuildPhase, number> = {
+  idle: 0,
+  listening: 0,
+  starting: 18,
+  building: 48,
+  verifying: 78,
+  done: 100,
+  error: 100,
+};
+
 export default function Home() {
   const [phase, setPhase] = useState<BuildPhase>("idle");
   const [statusMessage, setStatusMessage] = useState<string>("");
@@ -105,19 +115,23 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen w-full bg-navy text-sand flex flex-col items-center px-6 py-8">
-      <header className="w-full max-w-6xl flex flex-col items-center text-center gap-2 mb-6">
-        <h1 className="text-5xl font-black tracking-tight">
-          <span className="text-coral">Say</span>{" "}
-          <span className="text-aqua">So</span>
+    <div className="relative z-10 flex min-h-screen w-full flex-col items-center px-5 py-8 text-sand sm:px-8">
+      <header className="animate-fade-up mb-8 flex w-full max-w-6xl flex-col items-center gap-3 text-center">
+        <h1 className="font-display text-7xl font-black tracking-tighter md:text-8xl">
+          <span className="text-coral drop-shadow-[0_0_40px_rgba(255,78,120,0.35)]">
+            Say
+          </span>{" "}
+          <span className="text-aqua drop-shadow-[0_0_40px_rgba(25,224,200,0.3)]">
+            So
+          </span>
         </h1>
-        <p className="text-lg text-slate">
+        <p className="animate-fade-up animate-delay-1 max-w-xl text-lg leading-relaxed text-slate md:text-xl">
           Voice to a tested, running app. You just have to say so.
         </p>
       </header>
 
-      <main className="w-full max-w-6xl flex flex-col gap-6 flex-1">
-        <section className="flex flex-col gap-4">
+      <main className="flex w-full max-w-6xl flex-1 flex-col gap-6">
+        <section className="animate-fade-up animate-delay-2 flex flex-col gap-4">
           <MicButton
             onSubmit={startBuild}
             disabled={isRunning}
@@ -126,11 +140,11 @@ export default function Home() {
           <StatusBar phase={phase} message={statusMessage} prompt={prompt} />
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-[420px]">
-          <div className="min-h-[420px]">
+        <section className="animate-fade-up animate-delay-3 grid min-h-[420px] flex-1 grid-cols-1 gap-5 lg:grid-cols-5 lg:gap-6">
+          <div className="lg:col-span-3">
             <BuildStream logs={logs} />
           </div>
-          <div className="min-h-[420px]">
+          <div className="lg:col-span-2">
             <ProofPanel proofUrl={proofUrl} phase={phase} />
           </div>
         </section>
@@ -149,32 +163,50 @@ function StatusBar({
   prompt: string;
 }) {
   const tone: Record<BuildPhase, string> = {
-    idle: "bg-slate/20 text-slate",
-    listening: "bg-coral/20 text-coral",
-    starting: "bg-azure/20 text-azure",
-    building: "bg-azure/20 text-azure",
-    verifying: "bg-aqua/20 text-aqua",
-    done: "bg-aqua/20 text-aqua",
-    error: "bg-coral/20 text-coral",
+    idle: "border-white/[0.06] bg-white/[0.03] text-slate",
+    listening: "border-coral/25 bg-coral/10 text-coral",
+    starting: "border-azure/25 bg-azure/10 text-azure",
+    building: "border-azure/25 bg-azure/10 text-azure",
+    verifying: "border-aqua/30 bg-aqua/10 text-aqua",
+    done: "border-aqua/30 bg-aqua/10 text-aqua",
+    error: "border-coral/30 bg-coral/10 text-coral",
+  };
+  const progressColor: Record<BuildPhase, string> = {
+    idle: "bg-slate/40",
+    listening: "bg-coral",
+    starting: "bg-azure",
+    building: "bg-azure",
+    verifying: "bg-aqua",
+    done: "bg-aqua",
+    error: "bg-coral",
   };
   const active = ["starting", "building", "verifying"].includes(phase);
+  const progress = PHASE_PROGRESS[phase];
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-xl px-5 py-3 ${tone[phase]}`}
+      className={`status-bar overflow-hidden rounded-2xl border backdrop-blur-sm ${tone[phase]}`}
     >
-      <span
-        className={`inline-block h-3 w-3 rounded-full bg-current ${
-          active ? "animate-pulse" : ""
-        }`}
-      />
-      <span className="font-bold uppercase tracking-widest text-sm">
-        {PHASE_LABELS[phase]}
-      </span>
-      <span className="text-sm opacity-90 truncate">
-        {message}
-        {prompt && phase !== "idle" ? ` \u2014 \u201c${prompt}\u201d` : ""}
-      </span>
+      <div className="flex items-center gap-3 px-5 py-3.5">
+        <span
+          className={`inline-block h-3 w-3 shrink-0 rounded-full bg-current ${
+            active ? "animate-pulse" : ""
+          }`}
+        />
+        <span className="shrink-0 text-sm font-bold uppercase tracking-[0.2em]">
+          {PHASE_LABELS[phase]}
+        </span>
+        <span className="truncate text-sm opacity-90">
+          {message}
+          {prompt && phase !== "idle" ? ` \u2014 \u201c${prompt}\u201d` : ""}
+        </span>
+      </div>
+      <div className="h-1 bg-white/[0.06]">
+        <div
+          className={`status-progress h-full ${progressColor[phase]}`}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
     </div>
   );
 }
