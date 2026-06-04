@@ -18,7 +18,7 @@ const ACTIVE_PHASES: BuildPhase[] = ["starting", "building", "verifying"];
 
 const PHASE_PROGRESS: Record<BuildPhase, number> = {
   idle: 0,
-  listening: 0,
+  listening: 8,
   starting: 18,
   building: 48,
   verifying: 78,
@@ -135,6 +135,15 @@ export default function Home() {
         <section className="animate-fade-up animate-delay-2 flex flex-col gap-4">
           <MicButton
             onSubmit={startBuild}
+            onListeningChange={(listening) => {
+              if (listening && !runningRef.current) {
+                setPhase("listening");
+                setStatusMessage("Listening for your request\u2026");
+              } else if (!runningRef.current) {
+                setPhase("idle");
+                setStatusMessage("");
+              }
+            }}
             disabled={isRunning}
             defaultPrompt={DEFAULT_REQUEST}
           />
@@ -181,7 +190,9 @@ function StatusBar({
     done: "bg-aqua",
     error: "bg-coral",
   };
-  const active = ["starting", "building", "verifying"].includes(phase);
+  const active = ["listening", "starting", "building", "verifying"].includes(
+    phase,
+  );
   const progress = PHASE_PROGRESS[phase];
 
   return (
@@ -197,7 +208,11 @@ function StatusBar({
         <span className="shrink-0 text-sm font-bold uppercase tracking-[0.2em]">
           {PHASE_LABELS[phase]}
         </span>
-        <span className="truncate text-sm opacity-90">
+        <span
+          className="truncate text-sm opacity-90"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {message}
           {prompt && phase !== "idle" ? ` \u2014 \u201c${prompt}\u201d` : ""}
         </span>

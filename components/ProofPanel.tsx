@@ -12,7 +12,11 @@ type ProofPanelProps = {
 export function ProofPanel({ proofUrl, phase }: ProofPanelProps) {
   return (
     <FrostedPanel title="Proof" subtitle="agent-verified">
-      <div className="relative flex h-full min-h-[340px] items-center justify-center overflow-hidden rounded-xl bg-navy/35">
+      <div
+        className={`relative flex h-full min-h-[340px] items-center justify-center rounded-xl bg-navy/35 ${
+          proofUrl ? "overflow-visible" : "overflow-hidden"
+        }`}
+      >
         <AnimatePresence mode="wait">
           {proofUrl ? (
             <motion.div
@@ -20,9 +24,12 @@ export function ProofPanel({ proofUrl, phase }: ProofPanelProps) {
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              className="relative flex h-full w-full items-center justify-center p-3"
+              className="relative flex h-full w-full items-center justify-center overflow-visible p-3"
             >
-              <div className="proof-glow-once relative rounded-xl p-1">
+              <div
+                key={`glow-${proofUrl}`}
+                className="proof-glow-once relative rounded-xl p-1"
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={proofUrl}
@@ -30,10 +37,10 @@ export function ProofPanel({ proofUrl, phase }: ProofPanelProps) {
                   className="max-h-[min(420px,58vh)] max-w-full rounded-lg object-contain shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
                 />
                 <motion.span
-                  initial={{ opacity: 0, y: 8, x: 8 }}
-                  animate={{ opacity: 1, y: 0, x: 0 }}
-                  transition={{ delay: 0.35, duration: 0.4, ease: "easeOut" }}
-                  className="absolute right-2 top-2 flex items-center gap-1.5 rounded-full border border-aqua/40 bg-navy/90 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-aqua shadow-lg backdrop-blur-sm"
+                  initial={{ opacity: 0, y: 10, scale: 0.92 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.35, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full border border-aqua/50 bg-navy/95 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-aqua shadow-[0_0_20px_rgba(25,224,200,0.35)] backdrop-blur-sm"
                 >
                   <span aria-hidden="true">✓</span>
                   Verified by the agent

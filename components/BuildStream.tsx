@@ -21,15 +21,21 @@ const LEVEL_LABELS: Record<StreamLog["level"], string> = {
 };
 
 export function BuildStream({ logs }: { logs: StreamLog[] }) {
-  const endRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = scrollRef.current;
+    if (!container) return;
+    // Scroll the panel itself, not the page — keeps the live tail visible during demo.
+    container.scrollTop = container.scrollHeight;
   }, [logs]);
 
   return (
     <FrostedPanel title="Build stream" subtitle="live agent output">
-      <div className="h-full max-h-[min(480px,58vh)] overflow-y-auto rounded-xl bg-navy/30 p-4 font-mono text-[13px] leading-relaxed">
+      <div
+        ref={scrollRef}
+        className="h-full max-h-[min(480px,58vh)] overflow-y-auto scroll-smooth rounded-xl bg-navy/30 p-4 font-mono text-[13px] leading-relaxed"
+      >
         {logs.length === 0 ? (
           <p className="text-slate/90">
             The agent&rsquo;s work will stream here&hellip;
@@ -57,7 +63,6 @@ export function BuildStream({ logs }: { logs: StreamLog[] }) {
             ))}
           </ul>
         )}
-        <div ref={endRef} />
       </div>
     </FrostedPanel>
   );

@@ -4,15 +4,26 @@ import { useEffect, useRef, useState } from "react";
 
 type MicButtonProps = {
   onSubmit: (prompt: string) => void;
+  onListeningChange?: (listening: boolean) => void;
   disabled?: boolean;
   defaultPrompt?: string;
 };
 
-export function MicButton({ onSubmit, disabled, defaultPrompt }: MicButtonProps) {
+export function MicButton({
+  onSubmit,
+  onListeningChange,
+  disabled,
+  defaultPrompt,
+}: MicButtonProps) {
   const [text, setText] = useState("");
   const [listening, setListening] = useState(false);
   const [supported, setSupported] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const onListeningChangeRef = useRef(onListeningChange);
+
+  useEffect(() => {
+    onListeningChangeRef.current = onListeningChange;
+  }, [onListeningChange]);
 
   useEffect(() => {
     const Ctor = window.SpeechRecognition ?? window.webkitSpeechRecognition;
@@ -32,8 +43,14 @@ export function MicButton({ onSubmit, disabled, defaultPrompt }: MicButtonProps)
       }
       setText(transcript);
     };
-    recognition.onend = () => setListening(false);
-    recognition.onerror = () => setListening(false);
+    recognition.onend = () => {
+      setListening(false);
+      onListeningChangeRef.current?.(false);
+    };
+    recognition.onerror = () => {
+      setListening(false);
+      onListeningChangeRef.current?.(false);
+    };
 
     recognitionRef.current = recognition;
     return () => {
@@ -54,14 +71,17 @@ export function MicButton({ onSubmit, disabled, defaultPrompt }: MicButtonProps)
     if (listening) {
       recognition.stop();
       setListening(false);
+      onListeningChangeRef.current?.(false);
       return;
     }
     setText("");
     try {
       recognition.start();
       setListening(true);
+      onListeningChangeRef.current?.(true);
     } catch {
       setListening(false);
+      onListeningChangeRef.current?.(false);
     }
   };
 
