@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Say So
 
-## Getting Started
+**Voice to a tested, running app. You just have to say so.**
 
-First, run the development server:
+Speak (or type) a request. A Cursor Agent SDK run scaffolds a small web app in a
+scratch workspace, runs it, and verifies its own work by taking a screenshot of
+the running app. We stream the agent's work live and surface its own screenshot
+as proof.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Run it (3 steps)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. `npm install` then `npx playwright install chromium` (one-time, for the proof screenshot)
+2. Put your Cursor API key in `.env.local`: `CURSOR_API_KEY=cursor_...`
+3. `npm run dev` and open http://localhost:3000 in Chrome
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Click **Speak** (or type) and say: _"a todo list app where I can add and delete tasks."_
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## How it works
 
-## Learn More
+- `app/page.tsx` — single-screen UI: mic/text input, live build stream, proof panel
+- `app/api/build/route.ts` — POST that streams normalized agent events (SSE over a `ReadableStream`, Node runtime)
+- `app/api/proof/route.ts` — serves the screenshot the agent took
+- `lib/cursor.ts` — creates a local Cursor agent, sends one prompt, maps `run.stream()` to UI events
+- `lib/scratch.ts` — resets the scratch workspace and pre-seeds the screenshot helper
+- `lib/prompts.ts` — the prescriptive build + self-verify prompt
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The agent runs **locally** against a scratch directory, so the screenshot is read
+straight off disk. One request = one fresh agent (respects the one-active-run rule).
