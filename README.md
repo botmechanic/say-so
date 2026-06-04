@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/say-so-logo.png" alt="Say So" width="300" />
+</p>
+
 # Say So
 
 **Voice to a tested, running app. You just have to say so.**

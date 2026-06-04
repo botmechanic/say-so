@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 import { MicButton } from "@/components/MicButton";
 import { BuildStream } from "@/components/BuildStream";
@@ -116,15 +117,15 @@ export default function Home() {
 
   return (
     <div className="relative z-10 flex min-h-screen w-full flex-col items-center px-5 py-8 text-sand sm:px-8">
-      <header className="animate-fade-up mb-8 flex w-full max-w-6xl flex-col items-center gap-3 text-center">
-        <h1 className="font-display text-7xl font-black tracking-tighter md:text-8xl">
-          <span className="text-coral drop-shadow-[0_0_40px_rgba(255,78,120,0.35)]">
-            Say
-          </span>{" "}
-          <span className="text-aqua drop-shadow-[0_0_40px_rgba(25,224,200,0.3)]">
-            So
-          </span>
-        </h1>
+      <header className="animate-fade-up mb-8 flex w-full max-w-6xl flex-col items-center gap-4 text-center">
+        <Image
+          src="/say-so-logo.png"
+          alt="Say So"
+          width={320}
+          height={320}
+          priority
+          className="h-auto w-[min(100%,260px)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.35)] md:w-[300px]"
+        />
         <p className="animate-fade-up animate-delay-1 max-w-xl text-lg leading-relaxed text-slate md:text-xl">
           Voice to a tested, running app. You just have to say so.
         </p>
