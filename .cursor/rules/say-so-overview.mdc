@@ -1,0 +1,15 @@
+---
+description: Say So project context, demo layers, and reliability priority
+alwaysApply: true
+---
+
+# Say So — project overview
+
+Say So is a single-screen Next.js demo: voice or text → local `@cursor/sdk` agent run → live build stream → agent screenshots the app it built → proof panel shows that PNG.
+
+**Three demo layers** (build floor-first; each layer stands alone on stage):
+- **Floor:** input → `/api/build` stream → `BuildStream`
+- **Win condition:** agent writes `proof.png` → `/api/proof` → `ProofPanel` reveal
+- **Flex:** live VM desktop stream — cut without regret
+
+**Prime directive:** demo reliability beats architectural sophistication. A rehearsed floor-only run beats a flaky ambitious one. Prefer deterministic prompts, canned demo text (`DEFAULT_REQUEST` in `lib/events.ts`), and text-input fallback over new features that might fail live.

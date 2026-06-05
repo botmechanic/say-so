@@ -1,0 +1,39 @@
+---
+description: Non-negotiable constraints when editing Say So
+alwaysApply: true
+---
+
+# Guardrails
+
+## Do not break the stream path
+
+When editing UI (`app/page.tsx`, `components/*`), preserve:
+- POST `/api/build` + `fetch().body.getReader()` frame parsing (`data: ` prefix, `\n\n` delimiter)
+- `handleEvent` switch on `BuildEvent.type`
+- `runningRef` one-build-at-a-time guard
+
+Visual-only changes belong in components; do not move agent logic into the client.
+
+## Do not pull server code into the client bundle
+
+Never import `lib/cursor.ts`, `lib/scratch.ts`, or `@cursor/sdk` from `"use client"` files. Shared types/constants: `lib/events.ts` only.
+
+## Keep the agent-built app simple
+
+The demo app the agent creates must stay **vanilla HTML/CSS/JS** (three files, no bundler, no `npm install`, no fetch). Changes to scope belong in `lib/prompts.ts`, not ad-hoc prompt strings in routes or components.
+
+## No browser persistence
+
+No `localStorage`, `sessionStorage`, or IndexedDB — each run is stateless server-side. Transcript lives in React state; proof lives on disk in scratch dir.
+
+## Do not move scratch workspace into the repo
+
+Agent output stays in `{tmpdir}/say-so/`. Moving it under the project root will reload the dev server when the agent writes files.
+
+## Cut order when behind
+
+Drop from the bottom: live VM stream → cloud agent → voice (text fallback always wired) → proof polish. Never let flex work break the floor stream.
+
+## Next.js version
+
+This is Next.js 16 — read `node_modules/next/dist/docs/` before changing routing, route handlers, or config. Heed deprecation notices in `AGENTS.md`.

@@ -1,0 +1,49 @@
+---
+description: Miami palette, typography, and UI patterns for Say So
+globs: app/**,components/**
+alwaysApply: false
+---
+
+# Styling
+
+## Palette (Tailwind tokens in `app/globals.css` @theme)
+
+Use token classes — do not hardcode hex in components:
+
+| Token | Hex | Meaning |
+|-------|-----|---------|
+| `navy` | `#0A1E3F` | base / surfaces |
+| `coral` | `#FF4E78` | "Say" — voice, intent, primary CTA |
+| `aqua` | `#19E0C8` | "So" — verified, proof, success |
+| `azure` | `#2D7FF9` | building / tool activity |
+| `sand` | `#FDFBF5` | primary text |
+| `slate` | `#9AADC8` | secondary text (brightened for projector legibility) |
+
+Semantic pairing: coral = speak/act, aqua = verified/done.
+
+## Typography
+
+- **Display / hero:** `font-display` → Bricolage Grotesque (`app/layout.tsx`)
+- **Body:** Geist Sans (`font-sans`)
+- **Build stream:** Geist Mono (`font-mono` on `BuildStream`)
+
+Logo: `/public/say-so-logo.png` via `next/image` in `page.tsx` header.
+
+## Layout patterns
+
+Single screen, no scroll required for demo:
+1. Logo + tagline
+2. `MicButton` + status bar (phase progress line in `StatusBar`)
+3. Asymmetric panels: build stream `lg:col-span-3`, proof `lg:col-span-2`
+
+Panels use `FrostedPanel`: `bg-white/[0.03]`, `backdrop-blur`, `border-white/[0.08]`.
+
+Background: gradient mesh + `.grain-overlay` in `layout.tsx` — edit in `globals.css`, not inline on page.
+
+## Proof reveal
+
+`ProofPanel` uses Motion (`motion/react`) + `.proof-glow-once` in `globals.css`. Parent must stay `overflow-visible` when proof shows — glow is a box-shadow that gets clipped by `overflow-hidden`.
+
+## Motion scope
+
+Use Motion for proof reveal and badge only. Do not add scattered micro-animations that distract from the live build stream during a 2-minute demo.

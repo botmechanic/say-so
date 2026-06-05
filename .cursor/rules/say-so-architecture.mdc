@@ -1,0 +1,58 @@
+---
+description: SSE streaming, agent lifecycle, scratch workspace, and proof contract
+globs: app/**,lib/**
+alwaysApply: false
+---
+
+# Architecture & conventions
+
+## Request flow
+
+`MicButton` / demo button → `app/page.tsx` POST `{ prompt }` to `/api/build` → `lib/cursor.ts` `runBuild()` → frames streamed back → `handleEvent()` in `page.tsx` updates UI.
+
+Do **not** switch to GET + `EventSource`; the prompt travels in the POST body.
+
+## SSE contract
+
+`/api/build/route.ts` emits newline-delimited frames:
+
+```
+data: {"type":"status","phase":"building",...}\n\n
+```
+
+`lib/events.ts` defines the `BuildEvent` discriminated union — **source of truth**. New event types: add the type there, map in `lib/cursor.ts`, handle in `page.tsx` `handleEvent`, render in the relevant component.
+
+`lib/events.ts` must stay free of server-only imports (imported by client and server).
+
+## Agent routes
+
+Both `/api/build` and `/api/proof` require:
+
+```ts
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+```
+
+`@cursor/sdk` is in `serverExternalPackages` (`next.config.ts`) — do not import it from client components.
+
+## One agent per request
+
+SDK allows one active run per agent (`409 agent_busy`). Each build: `Agent.create` → `send` → stream → `wait` → `agent[Symbol.asyncDispose]()`. Do not resume agents or fire concurrent runs. `page.tsx` `runningRef` blocks overlapping client requests.
+
+## Scratch workspace & proof
+
+Agent scaffolds into `{os.tmpdir()}/say-so/workspace/` (`WORKSPACE_DIR` in `lib/scratch.ts`), **outside the repo** so Next dev watcher does not reload mid-build.
+
+Before each run, `resetScratch()` wipes workspace and rewrites `proof/screenshot.mjs`.
+
+Win condition path:
+1. `lib/prompts.ts` instructs agent to run `node PROOF_SCRIPT WORKSPACE_DIR PROOF_PATH`
+2. Agent writes `{tmpdir}/say-so/proof/proof.png`
+3. `lib/cursor.ts` checks `proofExists()`, yields `{ type: "proof", url: "/api/proof?t=..." }`
+4. `/api/proof` reads that file from disk (`readProof()`), returns `image/png`, `Cache-Control: no-store`
+
+Do not rely on undocumented SDK artifact fields; proof is a steered file on disk.
+
+## Prompts
+
+Agent instructions live in `lib/prompts.ts` `buildPrompt()`. Keep prescriptive: exactly three files (`index.html`, `styles.css`, `app.js`), vanilla JS, no npm/build/network, one screenshot command. Demo reliability depends on this staying tight.
