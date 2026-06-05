@@ -36,4 +36,4 @@ Drop from the bottom: live VM stream → cloud agent → voice (text fallback al
 
 ## Next.js version
 
-This is Next.js 16 — read `node_modules/next/dist/docs/` before changing routing, route handlers, or config. Heed deprecation notices in `AGENTS.md`.
+This is Next.js 16.2.7 — read `node_modules/next/dist/docs/` before changing routing, route handlers, or config. See `AGENTS.md` for the project entry point.
